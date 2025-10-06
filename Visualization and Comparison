@@ -1,0 +1,75 @@
+# Visualization: Before and After PCA
+# TO DO: Create plots showing data before and after PCA
+
+# Before PCA - use first two original features
+plt.figure(figsize=(15, 6))
+
+# Before PCA
+plt.subplot(1, 2, 1)
+plt.scatter(X_scaled[:, 0], X_scaled[:, 1], alpha=0.7, c='blue')
+plt.xlabel('GDP per capita (Standardized)')
+plt.ylabel('Life Expectancy (Standardized)')
+plt.title('Original Data - First Two Features')
+plt.grid(True, alpha=0.3)
+
+# After PCA
+plt.subplot(1, 2, 2)
+plt.scatter(X_pca_custom[:, 0], X_pca_custom[:, 1], alpha=0.7, c='red')
+plt.xlabel('Principal Component 1')
+plt.ylabel('Principal Component 2')
+plt.title('Data After PCA - First Two Principal Components')
+plt.grid(True, alpha=0.3)
+
+
+plt.tight_layout()
+plt.show()
+# More detailed visualization with country labels
+plt.figure(figsize=(12, 8))
+
+# Create a colormap based on GDP per capita (original first feature)
+colors = X_scaled[:, 0]  # GDP per capita
+
+scatter = plt.scatter(X_pca_custom[:, 0], X_pca_custom[:, 1], 
+                     c=colors, cmap='viridis', alpha=0.7, s=60)
+plt.colorbar(scatter, label='GDP per capita (Standardized)')
+plt.xlabel(f'PC1 ({pca_custom.explained_variance_ratio_[0]*100:.1f}% variance)')
+plt.ylabel(f'PC2 ({pca_custom.explained_variance_ratio_[1]*100:.1f}% variance)')
+plt.title('African Countries in Principal Component Space')
+
+# Label some countries
+countries = df_clean.index
+for i, country in enumerate(countries):
+    if i % 5 == 0:  # Label every 5th country to avoid clutter
+        plt.annotate(country, (X_pca_custom[i, 0], X_pca_custom[i, 1]), 
+                    xytext=(5, 5), textcoords='offset points', fontsize=8)
+
+plt.grid(True, alpha=0.3)
+plt.show()
+# Component analysis - what do the principal components represent?
+# TO DO: Analyze what the principal components represent
+
+# Get the loadings (component coefficients)
+loadings = pca_custom.components_
+
+# Create a heatmap of the first few components
+plt.figure(figsize=(12, 8))
+component_labels = [f'PC{i+1}' for i in range(5)]
+sns.heatmap(loadings[:5, :], 
+            xticklabels=df_clean.columns,
+            yticklabels=component_labels,
+            cmap='RdBu_r', center=0, annot=True, fmt='.2f')
+plt.title('PCA Component Loadings (First 5 Components)')
+plt.tight_layout()
+plt.show()
+
+# Interpretation of first two components
+print("Interpretation of Principal Components:")
+print("\nPC1 (Most Important Features):")
+pc1_features = sorted(zip(df_clean.columns, loadings[0]), key=lambda x: abs(x[1]), reverse=True)[:5]
+for feature, loading in pc1_features:
+    print(f"  {feature}: {loading:.3f}")
+
+print("\nPC2 (Most Important Features):")
+pc2_features = sorted(zip(df_clean.columns, loadings[1]), key=lambda x: abs(x[1]), reverse=True)[:5]
+for feature, loading in pc2_features:
+    print(f"  {feature}: {loading:.3f}")
